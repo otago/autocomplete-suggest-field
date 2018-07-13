@@ -1,0 +1,15 @@
+{
+	"name": "otago/autocomplete-suggest-field",
+	"description": "Autocomplete Suggestion Field",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe"],
+	"license": "BSD-3-Clause",
+	"require": {
+		"silverstripe/framework": "3.*"
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
+	}
+}
