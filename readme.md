@@ -47,7 +47,7 @@ class MyFavouriteUserPage extends Page {
 
 }
 
-class MyFavouriteUserPage_Controller extends TeamContentPage_Controller {
+class MyFavouriteUserPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
 		'autocompleteFavouriteUserID',
