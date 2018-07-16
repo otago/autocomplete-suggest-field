@@ -6,7 +6,7 @@
 	"license": "BSD-3-Clause",
 	"require": {
         "silverstripe/vendor-plugin": "^1.0",
-        "silverstripe/framework": "~4.*"
+        "silverstripe/framework": "~4.1"
     },
     "autoload": {
         "psr-4": {
