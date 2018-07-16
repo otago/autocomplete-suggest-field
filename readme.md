@@ -1,12 +1,14 @@
-# An ajax based autocomplete suggestion field for SilverStripe 3.*
+# An ajax based autocomplete suggestion field for SilverStripe 4.\* or 3.\*
+
+Use the 3.0 version for SilverStripe 3.\*, and the 4.0 version for SilverStripe 4.\*
 
 **Allows the user to select from a list of options while typing. Some handy use 
 cases would be; selecting a CSS class from a large list, selecting a user from a
 remote API, or selecting a SilverStripe member when you have thousands of members.**
 
-![When you start typing, suggestions will appear](images/1.png)
+![When you start typing, suggestions will appear](docs/1.png)
 
-![When selected, you'll see a friendly name instead of the ID](images/2.png)
+![When selected, you'll see a friendly name instead of the ID](docs/2.png)
 
 ## Features
 
@@ -30,6 +32,18 @@ and allows your cms admins to not hate your face.
 ```
 <?php
 
+use OP\AutocompleteSuggestField;
+use SilverStripe\CMS\Controllers\ModelAsController;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\View\Requirements;
+use SilverStripe\Security\Member;
+
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 class MyFavouriteUserPage extends Page {
 
 	private static $has_one = array(
@@ -47,7 +61,7 @@ class MyFavouriteUserPage extends Page {
 
 }
 
-class MyFavouriteUserPage_Controller extends Page_Controller {
+class MyFavouriteUserPageController extends PageController {
 
 	private static $allowed_actions = array(
 		'autocompleteFavouriteUserID',
@@ -57,7 +71,7 @@ class MyFavouriteUserPage_Controller extends Page_Controller {
 	 * searches users in the local db
 	 * @param SS_HTTPRequest $httprequest
 	 */
-	public function autocompleteFavouriteUserID(SS_HTTPRequest $httprequest) {
+	public function autocompleteFavouriteUserID(HTTPRequest $httprequest) {
 		Requirements::clear();
 		$query = $httprequest->getVar('query');
 		$returnarray = array();
@@ -82,7 +96,6 @@ class MyFavouriteUserPage_Controller extends Page_Controller {
 	}
 
 }
-
 ```
 
 ## a more complicated example that pulls in data from an external API

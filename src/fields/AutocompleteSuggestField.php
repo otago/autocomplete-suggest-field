@@ -1,5 +1,11 @@
 <?php
 
+namespace OP;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\View\Requirements;
+use SilverStripe\Control\Controller;
+
 /**
  * A generic and reusable ajax based auto complete suggest suggestion select box.
  * 
@@ -11,6 +17,11 @@ class AutocompleteSuggestField extends TextField {
 	protected $placeholder;
 	protected $displayname;
 	protected $dataobject;
+	
+	
+    private static $casting = array(
+        'AttributesDisplayHTML' => 'HTMLFragment'
+    );
 
 	/**
 	 * Builds the autocomplete suggest field. includes the needed js and checks 
@@ -28,6 +39,7 @@ class AutocompleteSuggestField extends TextField {
 		$this->name = $name;
 		$this->controller = $controller;
 		$this->dataobject = $dataojbect;
+		//$this->setTemplate('autocomplete-suggest-field/templates/AutocompleteSuggestField');
 
 		if (!$this->controller->hasAction($this->getAutoCompleteActionName())) {
 			throw new Exception('Controller ' . get_class($controller) .
