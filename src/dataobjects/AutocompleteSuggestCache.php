@@ -18,6 +18,8 @@ class AutocompleteSuggestCache extends DataObject {
 	private static $indexes = [
 		'AutoField' => true
 	];
+    private static $table_name = 'AutocompleteSuggestCache';
+	
 	
 	public static function find_or_create($autofield) {
 		$cache = AutocompleteSuggestCache::get()->filter(array('AutoField' =>$autofield))->first();

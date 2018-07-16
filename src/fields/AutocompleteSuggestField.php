@@ -5,6 +5,9 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\View\Requirements;
 use SilverStripe\Control\Controller;
+use Exception;
+
+use SilverStripe\Dev\Debug;
 
 /**
  * A generic and reusable ajax based auto complete suggest suggestion select box.
@@ -39,8 +42,7 @@ class AutocompleteSuggestField extends TextField {
 		$this->name = $name;
 		$this->controller = $controller;
 		$this->dataobject = $dataojbect;
-		//$this->setTemplate('autocomplete-suggest-field/templates/AutocompleteSuggestField');
-
+		
 		if (!$this->controller->hasAction($this->getAutoCompleteActionName())) {
 			throw new Exception('Controller ' . get_class($controller) .
 			' must have an allowed_action called ' . $this->getAutoCompleteActionName() . ' for AutocompleteSuggestField');
@@ -58,9 +60,8 @@ class AutocompleteSuggestField extends TextField {
 
 	/**
 	 * There are three types of data we can take,
-	 *  1. some data from a data object
-	 *  2. some data from an array
-	 *  3. just some text which will be used for both the id and name value
+	 *  1. some data from an array
+	 *  2. just some text which will be used for both the id and name value
 	 * @param type $value
 	 * @param DataObject $obj
 	 * @return $this
@@ -68,11 +69,6 @@ class AutocompleteSuggestField extends TextField {
 	public function setValue($value, $obj = null) {
 		$name = null;
 		$id = null;
-		
-		if ($obj instanceof DataObject) {
-			$name = $obj->getField($this->name);
-			$id = $obj->getField($this->name);
-        }
 		
 		// if we have been provided an array of values
 		if (is_array($obj) ) {
@@ -108,6 +104,10 @@ class AutocompleteSuggestField extends TextField {
 			$this->displayname = $cache->AutoName;
 		}
 		return parent::Value();
+	}
+	
+	public function getDisplayName () {
+		return $this->displayname;
 	}
 
 	public function getCacheKey() {

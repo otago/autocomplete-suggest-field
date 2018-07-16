@@ -10,6 +10,10 @@ remote API, or selecting a SilverStripe member when you have thousands of member
 
 ![When selected, you'll see a friendly name instead of the ID](docs/2.png)
 
+## Installation
+
+```composer require otago/autocomplete-suggest-field```
+
 ## Features
 
 * **Flexible autocomplete**
@@ -26,6 +30,13 @@ and allows your cms admins to not hate your face.
 * **Frontend and backend compatible**
   the only requirement is jQuery. No entwine needed.
 
+##### expose the JS files
+
+```composer vendor-expose```
+
+## Tests
+
+```vendor/silverstripe/framework/sake dev/tests/AutocompleteSuggestTest```
 
 ## Basic example
 
@@ -98,7 +109,7 @@ class MyFavouriteUserPageController extends PageController {
 }
 ```
 
-## a more complicated example that pulls in data from an external API
+## A more complicated example that pulls in data from an external API
 
 
 ```
