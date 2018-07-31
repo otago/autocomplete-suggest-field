@@ -38,6 +38,10 @@ and allows your cms admins to not hate your face.
 
 ```vendor/silverstripe/framework/sake dev/tests/AutocompleteSuggestTest```
 
+## Support
+
+[Safari currently does not support the datalist tag.](https://caniuse.com/#feat=datalist)
+
 ## Basic example
 
 ```
