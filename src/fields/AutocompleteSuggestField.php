@@ -37,7 +37,7 @@ class AutocompleteSuggestField extends TextField {
 	 * @throws Exception
 	 */
 	function __construct($name, $controller, $title = null, $form = null, DataObject $dataojbect = null) {
-		Requirements::javascript('resources/otago/autocomplete-suggest-field/javascript/AutocompleteSuggestField.js');
+		Requirements::javascript('otago/autocomplete-suggest-field: javascript/AutocompleteSuggestField.js');
 
 		$this->name = $name;
 		$this->controller = $controller;
