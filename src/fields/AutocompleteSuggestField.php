@@ -6,6 +6,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\View\Requirements;
 use SilverStripe\Control\Controller;
 use Exception;
+use SilverStripe\Core\Injector\Injector;
 
 use SilverStripe\Dev\Debug;
 
@@ -20,6 +21,7 @@ class AutocompleteSuggestField extends TextField {
 	protected $placeholder;
 	protected $displayname;
 	protected $dataobject;
+	protected $searchclassname;
 	
 	
     private static $casting = array(
@@ -30,24 +32,33 @@ class AutocompleteSuggestField extends TextField {
 	 * Builds the autocomplete suggest field. includes the needed js and checks 
 	 * to make sure you've got the allowed action public.
 	 * @param string $name
-	 * @param \Controller $controller
+	 * @param \Controller $controller or \DataObject
 	 * @param string $title
 	 * @param \Form $form
-	 * @param type $dataojbect required if you need to make the friendly name unique against a page or other object
+	 * @param type $dataojbect required if you need to make the friendly name unique against a parent page or parent object
 	 * @throws Exception
 	 */
-	function __construct($name, $controller, $title = null, $form = null, DataObject $dataojbect = null) {
-		Requirements::javascript('resources/otago/autocomplete-suggest-field/javascript/AutocompleteSuggestField.js');
+	function __construct($name, $controllerordb, $title = null, $form = null, DataObject $dataojbect = null) {
+		Requirements::javascript('otago/autocomplete-suggest-field: javascript/AutocompleteSuggestField.js');
 
 		$this->name = $name;
-		$this->controller = $controller;
+        
+        // a controller must contain a search method
+        if ($controllerordb instanceof Controller) {
+            $this->controller = $controllerordb;
+            
+            if ($this->controller && !$this->controller->hasAction($this->getAutoCompleteActionName())) {
+                throw new Exception('Controller ' . get_class($controller) .
+                ' must have an allowed_action called ' . $this->getAutoCompleteActionName() . ' for AutocompleteSuggestField');
+            }
+        } else if (Injector::inst()->create($controllerordb) instanceof DataObject) {
+            $this->searchclassname = $controllerordb;
+        } else {
+			throw new Exception('$controllerordb must be either a DataObject or Controller');
+        }
+            
 		$this->dataobject = $dataojbect;
 		
-		if (!$this->controller->hasAction($this->getAutoCompleteActionName())) {
-			throw new Exception('Controller ' . get_class($controller) .
-			' must have an allowed_action called ' . $this->getAutoCompleteActionName() . ' for AutocompleteSuggestField');
-		}
-
 		$this->setPlaceholderText('Start typing to see more of ' . $name);
 		$this->addExtraClass('datalistautocompletefield text');
 		
@@ -142,6 +153,9 @@ class AutocompleteSuggestField extends TextField {
 	}
 
 	public function getAutoCompleteURL() {
+        if(!$this->controller) {
+            return Controller::join_links(singleton(SearchController::class)->Link());
+        }
 		return Controller::join_links($this->controller->Link(), $this->getAutoCompleteActionName());
 	}
 
@@ -185,6 +199,7 @@ class AutocompleteSuggestField extends TextField {
 		$attributes['data-populate-id'] = $this->ID() . '[id]';
 		$attributes['name'] = $this->ID() . '[name]';
 		$attributes['value'] = $this->displayname ?: $this->dataValue();
+		$attributes['data-classname'] = $this->searchclassname;
 
 		return $this->getAttributesHTML($attributes);
 	}

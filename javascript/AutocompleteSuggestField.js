@@ -9,7 +9,7 @@
 
 			options.url = inputfield.attr('data-url');
 			options.type = "GET";
-			options.data = {"query": inputfield.val()};
+			options.data = {"query": inputfield.val(), "ClassName":inputfield.attr('data-classname')};
 			options.dataType = "json";
 
 			// ajax the search query
