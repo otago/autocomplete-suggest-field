@@ -6,9 +6,7 @@ Use the 3.0 version for SilverStripe 3.\*, and the 4.0 version for SilverStripe 
 cases would be; selecting a CSS class from a large list, selecting a user from a
 remote API, or selecting a SilverStripe member when you have thousands of members.
 
-![When you start typing, suggestions will appear](docs/1.png)
-
-![When selected, you'll see a friendly name instead of the ID](docs/2.png)
+![When you start typing, suggestions will appear gif](docs/preview.gif)
 
 ## Installation
 
