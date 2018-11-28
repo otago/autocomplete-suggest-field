@@ -4,6 +4,9 @@
 
 		// request the search from the server
 		function requestresults(inputfield, datalist, _loadingdiv) {
+			if(inputfield.val() === '') {
+				return false;
+			}
 			var options = {};
 			_loadingdiv.html('Loading');
 
