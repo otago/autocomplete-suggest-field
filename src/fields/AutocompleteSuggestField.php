@@ -46,7 +46,7 @@ class AutocompleteSuggestField extends TextField {
             $this->controller = $controllerordb;
 
             if ($this->controller && !$this->controller->hasAction($this->getAutoCompleteActionName())) {
-                throw new Exception('Controller ' . get_class($controller) .
+                throw new Exception('Controller ' . get_class($controllerordb) .
                 ' must have an allowed_action called ' . $this->getAutoCompleteActionName() . ' for AutocompleteSuggestField');
             }
         } else if (Injector::inst()->create($controllerordb) instanceof DataObject) {
