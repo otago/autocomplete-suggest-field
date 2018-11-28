@@ -8,6 +8,8 @@ use SilverStripe\View\Requirements;
 use SilverStripe\Control\Controller;
 use Exception;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Admin\LeftAndMain;
+use SilverStripe\Control\Session;
 
 /**
  * A generic and reusable ajax based auto complete suggest suggestion select box.
@@ -99,7 +101,6 @@ class AutocompleteSuggestField extends TextField {
                 $value = $name;
             }
         }
-
         parent::setValue($value);
 
         return $this;
@@ -110,6 +111,12 @@ class AutocompleteSuggestField extends TextField {
         if ($this->dataobject) {
             $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
             $this->displayname = $cache->AutoName;
+        }
+        if ($this->searchclassname) {
+            if (LeftAndMain::curr() && LeftAndMain::curr()->getRequest()->param("ID") !== 'new') {
+                $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
+                $this->displayname = $cache->AutoName;
+            }
         }
         return parent::Value();
     }
@@ -123,6 +130,10 @@ class AutocompleteSuggestField extends TextField {
         if ($this->dataobject) {
             $key .= $this->dataobject->ClassName;
             $key .= '_' . $this->dataobject->ID;
+        }
+        if ($this->searchclassname && LeftAndMain::curr()) {
+            $key .= $this->searchclassname;
+            $key .= '_' . LeftAndMain::curr()->getRequest()->param("ID");
         }
         return md5($key . $this->getName());
     }
