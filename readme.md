@@ -48,10 +48,13 @@ The following will create a search field in the CMS. Note the logged in user has
 ```
 <?php
 
+use OP\AutocompleteSuggestField;
+use SilverStripe\Security\Member;
+
 class MyFavouriteUserPage extends Page {
 
 	private static $has_one = array(
-		'FavouriteUser' => 'Member'
+		'FavouriteUser' => Member::class
 	);
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
@@ -84,7 +87,7 @@ use SilverStripe\Security\Member;
 class MyFavouriteUserPage extends Page {
 
 	private static $has_one = array(
-		'FavouriteUser' => 'Member'
+		'FavouriteUser' => Member::class
 	);
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
