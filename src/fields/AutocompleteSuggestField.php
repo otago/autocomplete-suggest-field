@@ -87,7 +87,6 @@ class AutocompleteSuggestField extends TextField {
 
             $this->tmpid = $id;
             $this->displayname = $name;
-            // die($this->tmpid);
             $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
             $cache->AutoName = $name;
             if ($id != $name) {
