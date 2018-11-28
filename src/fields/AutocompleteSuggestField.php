@@ -9,7 +9,6 @@ use SilverStripe\Control\Controller;
 use Exception;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Admin\LeftAndMain;
-use SilverStripe\Control\Session;
 
 /**
  * A generic and reusable ajax based auto complete suggest suggestion select box.
