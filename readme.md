@@ -1,10 +1,10 @@
-# An ajax based autocomplete suggestion field for SilverStripe 4.\* or 3.\*
+# An ajax based autocomplete suggestion field for SilverStripe
 
 Use the 3.0 version for SilverStripe 3.\*, and the 4.0 version for SilverStripe 4.\*
 
-**Allows the user to select from a list of options while typing. Some handy use 
+**Allows the user to select from a list of options while typing.** Some handy use 
 cases would be; selecting a CSS class from a large list, selecting a user from a
-remote API, or selecting a SilverStripe member when you have thousands of members.**
+remote API, or selecting a SilverStripe member when you have thousands of members.
 
 ![When you start typing, suggestions will appear](docs/1.png)
 
@@ -40,9 +40,37 @@ and allows your cms admins to not hate your face.
 
 ## Support
 
-[Safari currently does not support the datalist tag.](https://caniuse.com/#feat=datalist)
+[All modern browsers support this feature.](https://caniuse.com/#feat=datalist). MSIE and older versions do not work
 
 ## Basic example
+
+The following will create a search field in the CMS. Note the logged in user has to have access to the Member object. Searching logic is handled by a controller which comes out the box with autocomplete-suggest-field.
+
+```
+<?php
+
+class MyFavouriteUserPage extends Page {
+
+	private static $has_one = array(
+		'FavouriteUser' => 'Member'
+	);
+	public function getCMSFields() {
+		$fields = parent::getCMSFields();
+
+		$suggesteduser = AutocompleteSuggestField::create('FavouriteUserID', Member::class);
+		$suggesteduser->setDescription('Enter text to search for your favourite user');
+		$fields->addFieldToTab('Root.Main', $suggesteduser);
+
+		return $fields;
+	}
+
+}
+
+```
+
+## custom search examples
+
+Below shows how a developer can create custom search queries on the same file to return results
 
 ```
 <?php
@@ -54,11 +82,6 @@ use SilverStripe\View\Requirements;
 use SilverStripe\Security\Member;
 
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 class MyFavouriteUserPage extends Page {
 
 	private static $has_one = array(
@@ -115,6 +138,7 @@ class MyFavouriteUserPageController extends PageController {
 
 ## A more complicated example that pulls in data from an external API
 
+Note the office365 object does the actualy Ajax + parsing of the data
 
 ```
 class TeamPage_Controller extends Page_Controller {
