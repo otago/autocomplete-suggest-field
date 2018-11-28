@@ -1,4 +1,4 @@
-# An ajax based autocomplete suggestion field for SilverStripe
+# Ajax based autocomplete suggestion field for SilverStripe
 
 Use the 3.0 version for SilverStripe 3.\*, and the 4.0 version for SilverStripe 4.\*
 
