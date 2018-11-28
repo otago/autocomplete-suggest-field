@@ -2,7 +2,8 @@
 
 Use the 3.0 version for SilverStripe 3.\*, and the 4.0 version for SilverStripe 4.\*
 
-**Allows the user to select from a list of options while typing.** Some handy use 
+**Allows the user to select from a list of options while typing.** It saves an ID 
+against a field; be in Int, Text etc. Some handy use 
 cases would be; selecting a CSS class from a large list, selecting a user from a
 remote API, or selecting a SilverStripe member when you have thousands of members.
 
