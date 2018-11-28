@@ -45,7 +45,7 @@ and allows your cms admins to not hate your face.
 
 The following will create a search field in the CMS. Note the logged in user has to have access to the Member object. Searching logic is handled by a controller which comes out the box with autocomplete-suggest-field.
 
-```
+```php
 <?php
 
 use OP\AutocompleteSuggestField;
@@ -74,7 +74,7 @@ class MyFavouriteUserPage extends Page {
 
 Below shows how a developer can create custom search queries on the same file to return results
 
-```
+```php
 <?php
 
 use OP\AutocompleteSuggestField;
@@ -142,7 +142,7 @@ class MyFavouriteUserPageController extends PageController {
 
 Note the office365 object does the actualy Ajax + parsing of the data
 
-```
+```php
 class TeamPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
