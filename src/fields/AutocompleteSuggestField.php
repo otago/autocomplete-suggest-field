@@ -8,7 +8,6 @@ use SilverStripe\View\Requirements;
 use SilverStripe\Control\Controller;
 use Exception;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Admin\LeftAndMain;
 
 /**
  * A generic and reusable ajax based auto complete suggest suggestion select box.
@@ -52,7 +51,7 @@ class AutocompleteSuggestField extends TextField {
         } else if (Injector::inst()->create($controllerordb) instanceof DataObject) {
             $this->searchclassname = $controllerordb;
         } else {
-            throw new Exception('$controllerordb must be either a DataObject or Controller');
+            throw new Exception('$controllerordb must be either a DataObject::class or a Controller');
         }
 
         $this->dataobject = $dataojbect;
@@ -86,7 +85,9 @@ class AutocompleteSuggestField extends TextField {
                 $id = $obj[$this->ID()]['id'];
             }
 
+            $this->tmpid = $id;
             $this->displayname = $name;
+            // die($this->tmpid);
             $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
             $cache->AutoName = $name;
             if ($id != $name) {
@@ -112,10 +113,8 @@ class AutocompleteSuggestField extends TextField {
             $this->displayname = $cache->AutoName;
         }
         if ($this->searchclassname) {
-            if (LeftAndMain::curr() && LeftAndMain::curr()->getRequest()->param("ID") !== 'new') {
-                $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
-                $this->displayname = $cache->AutoName;
-            }
+            $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
+            $this->displayname = $cache->AutoName;
         }
         return parent::Value();
     }
@@ -125,14 +124,21 @@ class AutocompleteSuggestField extends TextField {
     }
 
     public function getCacheKey() {
-        $key = get_class($this->controller);
+        $key = '';
+        if ($this->controller) {
+            $key .= get_class($this->controller);
+        }
+
+        // sub key
         if ($this->dataobject) {
             $key .= $this->dataobject->ClassName;
             $key .= '_' . $this->dataobject->ID;
-        }
-        if ($this->searchclassname && LeftAndMain::curr()) {
+        } else if ($this->searchclassname && $this->tmpid) {
             $key .= $this->searchclassname;
-            $key .= '_' . LeftAndMain::curr()->getRequest()->param("ID");
+            $key .= '_' . $this->tmpid;
+        } else if ($this->searchclassname && parent::Value()) {
+            $key .= $this->searchclassname;
+            $key .= '_' . parent::Value();
         }
         return md5($key . $this->getName());
     }
