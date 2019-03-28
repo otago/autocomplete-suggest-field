@@ -7,6 +7,8 @@ use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Security\Security;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Security\Member;
+
 
 class SearchController extends Controller {
 
@@ -62,6 +64,18 @@ class SearchController extends Controller {
     public function buildsearchquery(HTTPRequest $request) {
         $SearchedDataObject = Injector::inst()->create($request->getVar('ClassName'));
 
+        // check for a first-name last-name pattern with people's names
+        if($SearchedDataObject->ClassName === Member::class) {
+            $searchvalues = explode(' ', $request->getVar('query'));
+            if(count($searchvalues) === 2) {
+                list($firstname, $lastname) = $searchvalues;
+                
+                $searchquery['FirstName:StartsWith:nocase'] = $firstname;
+                $searchquery['Surname:StartsWith:nocase'] = $lastname;
+                return $SearchedDataObject::get()->filter($searchquery)->limit(10);
+            }
+        }
+        
         $searchfields = $SearchedDataObject->config()->get('searchable_fields');
         if ($searchfields) {
             $searchquery = [];
