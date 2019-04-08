@@ -111,7 +111,7 @@ class AutocompleteSuggestField extends TextField {
             $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
             $this->displayname = $cache->AutoName;
         }
-        if ($this->searchclassname) {
+        if ($this->searchclassname && ($this->tmpid || parent::Value())) {
             $cache = AutocompleteSuggestCache::find_or_create($this->getCacheKey());
             $this->displayname = $cache->AutoName;
         }
