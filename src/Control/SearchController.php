@@ -10,23 +10,37 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\Member;
 
 
-class SearchController extends Controller {
+class SearchController extends Controller
+{
 
     private static $allowed_actions = array(
         'index',
         'getAutoCompleteActionName'
     );
 
-    public function index(HTTPRequest $request) {
+    /**
+     * Default action on controller
+     * 
+     * @param HTTPRequest $request HTML request
+     * 
+     * @return void
+     */
+    public function index(HTTPRequest $request)
+    {
         $this->getAutoCompleteActionName($request);
     }
 
     /**
-     * default search query for dataobjects
-     * @param HTTPRequest $request
+     * Default search query for dataobjects
+     *
+     * @param HTTPRequest $request HTML request made 
+     * 
      * @throws HTTPResponse_Exception
+     * 
+     * @return void
      */
-    public function getAutoCompleteActionName(HTTPRequest $request) {
+    public function getAutoCompleteActionName(HTTPRequest $request)
+    {
         if (!Security::getCurrentUser()) {
             throw new HTTPResponse_Exception('You must be signed in', 400);
         }
@@ -54,33 +68,38 @@ class SearchController extends Controller {
     }
 
     /**
-     * return a query that will return results of the search. Will look at $searchable_fields
-     * of the dataobject. If none are found, it will resort to Title. Title must exist on the dataobject
+     * Return a query that will return results of the search. Will look at
+     *  $searchable_fields of the dataobject. If none are found, it will
+     *  resort to Title. Title must exist on the dataobject
      * 
-     * @param HTTPRequest $request
+     * @param HTTPRequest $request html request of the current controller
+     * 
      * @return \DataList
+     * 
      * @throws HTTPResponse_Exception
      */
-    public function buildsearchquery(HTTPRequest $request) {
+    public function buildsearchquery(HTTPRequest $request)
+    {
         $SearchedDataObject = Injector::inst()->create($request->getVar('ClassName'));
 
         // check for a first-name last-name pattern with people's names
-        if($SearchedDataObject->ClassName === Member::class) {
+        if ($SearchedDataObject->ClassName === Member::class) {
             $searchvalues = explode(' ', $request->getVar('query'));
-            if(count($searchvalues) === 2) {
+            if (count($searchvalues) === 2) {
                 list($firstname, $lastname) = $searchvalues;
-                
+
                 $searchquery['FirstName:StartsWith:nocase'] = $firstname;
                 $searchquery['Surname:StartsWith:nocase'] = $lastname;
                 return $SearchedDataObject::get()->filter($searchquery)->limit(10);
             }
         }
-        
+
         $searchfields = $SearchedDataObject->config()->get('searchable_fields');
         if ($searchfields) {
             $searchquery = [];
             foreach ($searchfields as $field) {
-                $searchquery[$field . ':StartsWith:nocase'] = $request->getVar('query');
+                $searchquery[$field . ':StartsWith:nocase'] =
+                    $request->getVar('query');
             }
 
             return $SearchedDataObject::get()->filterAny($searchquery)->limit(10);
@@ -90,11 +109,20 @@ class SearchController extends Controller {
             throw new HTTPResponse_Exception($request->getVar('ClassName') . ' must have Title to search', 400);
         }
 
-        return $SearchedDataObject::get()->filter(array('Title:StartsWith:nocase' => $request->getVar('query')))->limit(10);
+        return $SearchedDataObject::get()->filter(
+            ['Title:StartsWith:nocase' => $request->getVar('query')]
+        )->limit(10);
     }
 
-    public function Link($action = null) {
+    /**
+     * Returns a string url to the current controller
+     * 
+     * @param string $action ignored. used to match SS API
+     * 
+     * @return string the link
+     */
+    public function Link($action = null)
+    {
         return 'otago-autocomplete-search';
     }
-
 }
