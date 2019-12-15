@@ -14,7 +14,7 @@ class AutocompleteSuggestCache extends DataObject
 {
 
     private static $db = [
-        'AutoField' => 'Varchar(33)',
+        'AutoField' => 'Varchar(255)',
         'AutoName' => 'Text',
     ];
     private static $indexes = [
