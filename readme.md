@@ -59,7 +59,7 @@ class MyFavouriteUserPage extends Page {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		$suggesteduser = AutocompleteSuggestField::create('FavouriteUserID', Member::class);
+		$suggesteduser = AutocompleteSuggestField::create('FavouriteUserID', Member::create());
 		$suggesteduser->setDescription('Enter text to search for your favourite user');
 		$fields->addFieldToTab('Root.Main', $suggesteduser);
 
@@ -92,7 +92,7 @@ class MyFavouriteUserPage extends Page {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		$suggesteduser = AutocompleteSuggestField::create('FavouriteUserID', ModelAsController::controller_for($this), 'Favourite user', null, $this);
+		$suggesteduser = AutocompleteSuggestField::create('FavouriteUserID',  Member::create(), 'Favourite user', ModelAsController::controller_for($this), null);
 		$suggesteduser->setDescription('Enter text to search for your favourite user');
 		$fields->addFieldToTab('Root.Main', $suggesteduser);
 
