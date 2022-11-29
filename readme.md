@@ -39,7 +39,7 @@ and allows your cms admins to not hate your face.
 
 ## Support
 
-[All modern browsers support this feature.](https://caniuse.com/#feat=datalist). older MSIE versions do not work
+[All modern browsers support this feature](https://caniuse.com/#feat=datalist). older MSIE versions do not work
 
 ## Basic example
 
@@ -140,7 +140,7 @@ class MyFavouriteUserPageController extends PageController {
 
 ## A more complicated example that pulls in data from an external API
 
-Note the office365 object does the actualy Ajax + parsing of the data
+Note the [id=>'', name=>''] JSON format
 
 ```php
 class TeamPage_Controller extends Page_Controller {
