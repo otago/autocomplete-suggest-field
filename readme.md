@@ -1,3 +1,12 @@
+# As of SilverStripe 5.2 - Just use searchable-dropdown-field!
+
+It's out the box - and 
+
+https://docs.silverstripe.org/en/5/changelogs/5.2.0/#searchable-dropdown-field
+
+https://api.silverstripe.org/5/SilverStripe/Forms/SearchableDropdownField.html
+
+
 # Ajax autocomplete suggestion field for SilverStripe
 
 Use the 3.0 version for SilverStripe 3.\*, and the 4.0 version for SilverStripe 4.\*
