@@ -1,6 +1,6 @@
 # As of SilverStripe 5.2 - Just use searchable-dropdown-field!
 
-It's out the box - and 
+It's out the box - and betterer
 
 https://docs.silverstripe.org/en/5/changelogs/5.2.0/#searchable-dropdown-field
 
