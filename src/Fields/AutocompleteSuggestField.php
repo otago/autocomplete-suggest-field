@@ -69,7 +69,7 @@ class AutocompleteSuggestField extends SearchableDropdownField
 
         // we use this to trigger the lazy loading via ajax
         $this->setIsLazyLoaded(true);
-        $this->setTemplate('GUIDDropdownField');
+        $this->setTemplate('AutocompleteSuggestField');
 
         // this inline js will add the label of the field to the value as json, so we can save it for later
         Requirements::customScript('
