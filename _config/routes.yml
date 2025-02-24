@@ -1,3 +1,0 @@
-SilverStripe\Control\Director:
-  rules:
-    otago-autocomplete-search: OP\SearchController

@@ -6,7 +6,7 @@ use SilverStripe\ORM\DataObject;
 
 
 /**
- * Remembers the friendly name you set your field to. Allows you for example to
+ * Remembers the friendly label of your field. Allows you for example to
  * have a MemberID and present the name of the person to the CMS admin, instead 
  * of presenting them with an ugly ID
  */
@@ -24,20 +24,77 @@ class AutocompleteSuggestCache extends DataObject
 
 
     /**
-     * Either will create a new DataBase Object, or will return an existing pair
+     * finds any cache value for use in the field
      * 
-     * @param string $autofield cache key name
+     * @param string $fieldname string name of the field. ideally should be unique
+     * @param mixed  $keyindex name of the index
      * 
-     * @return AutocompleteSuggestCache cache with a name-id pair
+     * @return DataList array of caches (can be multiple)
      */
-    public static function findOrCreate($autofield)
+    public static function find($fieldname, $keyindex)
     {
-        $cache = AutocompleteSuggestCache::get()->filter(
-            ['AutoField' => $autofield]
-        )->first();
-        if ($cache) {
-            return $cache;
-        }
-        return AutocompleteSuggestCache::create(array('AutoField' => $autofield));
+        $hashValue = md5((string)$keyindex);
+        return AutocompleteSuggestCache::get()->filter(
+            [
+                'AutoField' => $fieldname . '_' . $hashValue
+            ]
+        );
+    }
+
+    /**
+     * finds any cache value for use in the field
+     * 
+     * @param string $fieldname string name of the field. ideally should be unique
+     * @param mixed  $keyindex name of the index
+     * 
+     * @return void
+     */
+    public static function clearLabels($fieldname, $keyindex)
+    {
+        $hashValue = md5((string)$keyindex);
+        AutocompleteSuggestCache::get()->filter(
+            [
+                'AutoField' => $fieldname . '_' . $hashValue
+            ]
+        )->removeAll();
+    }
+
+    /**
+     * finds any cache value for use in the field
+     * 
+     * @param string $fieldname cache key name
+     * @param mixed  $value cache key name
+     * 
+     * @return AutocompleteSuggestCache
+     */
+    public static function writecache($fieldname, $keyindex, $label)
+    {
+        $hashValue = md5((string)$keyindex);
+        $newCache = AutocompleteSuggestCache::create();
+        $newCache->AutoField = $fieldname . '_' . $hashValue;
+        $newCache->AutoName = $label;
+        $newCache->write();
+        return $newCache;
+    }
+
+    /**
+     * gets the label for the cache
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->AutoName;
+    }
+
+    /**
+     * we allow all CMS users to use the cache object
+     * 
+     * @param member $member
+     * 
+     * @return boolean
+     */
+    public function canView($member = null)
+    {
+        return true;
     }
 }
