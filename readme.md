@@ -12,6 +12,8 @@ Enhance your forms with a **dynamic auto-complete dropdown** that allows for cus
 
 ## Examples
 
+Data must be returned in a 'value' 'label' key pair.
+
 ### Using an External API (e.g., Microsoft Graph)
 If you're fetching data from an external API, like Microsoft Graph, you can structure your search method as follows:
 
