@@ -14,10 +14,5 @@
       "OP\\": "src/",
       "OP\\Tests\\": "tests/"
     }
-  },
-  "extra": {
-    "expose": [
-      "javascript"
-    ]
   }
 }
