@@ -21,9 +21,12 @@ use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObjectInterface;
 use SilverStripe\Security\SecurityToken;
 use Closure;
+use Dom\Text;
+use SilverStripe\Admin\LeftAndMain;
 use SilverStripe\Control\Controller;
 use SilverStripe\Dev\Backtrace;
 use SilverStripe\Forms\SearchableDropdownTrait;
+use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\RelationList;
 use SilverStripe\ORM\UnsavedRelationList;
@@ -32,9 +35,8 @@ use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
 use SilverStripe\View\SSViewer;
 
-class AutocompleteSuggestField extends SearchableDropdownField
+class AutocompleteSuggestField extends FormField
 {
-    use SearchableDropdownTrait;
     private static array $allowed_actions = [
         'search',
     ];
@@ -43,7 +45,6 @@ class AutocompleteSuggestField extends SearchableDropdownField
 
     // This needs to be defined on the class, not the trait, otherwise there is a PHP error
     protected $schemaComponent = 'SearchableDropdownField';
-
     /**
      * @param string        $name
      * @param string|null   $title
@@ -62,81 +63,15 @@ class AutocompleteSuggestField extends SearchableDropdownField
         parent::__construct($name, $title, null, $value);
         $this->setValue($value);
         $this->sneedValue = $value;
-        $this->setLabelField($labelField);
-        $this->addExtraClass('ss-searchable-dropdown-field');
+        //  $this->setLabelField($labelField);
+        $this->addExtraClass('ss-autocomplete-dropdown-field');
 
         $this->setCallBack($searchCallback);
 
         // we use this to trigger the lazy loading via ajax
-        $this->setIsLazyLoaded(true);
-        $this->setTemplate('GUIDDropdownField');
-
-        // this inline js will add the label of the field to the value as json, so we can save it for later
-        Requirements::customScript('
-(function ($) {
-	$(document).ready(function () {
-        let itemid = $("div[name=\"' . $this->ID() . '\"], div[name=\"' . $this->ID() . '\[\]\"]");
-        $(itemid).on("change",function () {
-
-            // single dropdowns
-            let labelvalue = $(itemid).find(".ss-searchable-dropdown-field__single-value").text();
-
-            // multi value selects
-            var labelvalues = $(itemid)
-                .find(".ss-searchable-dropdown-field__multi-value__label").map(function() {
-                return $(this).text();
-            }).get();
-
-            let hiddeninputs = $(this).siblings(".hidden-input-fields");
-            let changeditem = $(this);
-            // has_one or text input
-            if(labelvalue) {
-                hiddeninputs.html("");
-                let hiddenval = $("<input/>");
-                hiddenval.attr("name", "' . $this->ID() . '");
-                hiddenval.attr("type", "hidden");
-
-                let inputval = $("[name=\"AjaxShadow' . $this->ID() . '\"]");
-                try {
-                    let inputObj = JSON.parse(changeditem.val());
-                    if (!inputObj.label) {
-                        throw new Error("Label not found in input object");
-                    }
-                } catch (e) {
-                    // set the input to be valid json
-                    let jsone = JSON.stringify({label: labelvalue, value: inputval.val()});
-                   hiddenval.val(jsone);
-                   hiddeninputs.append(hiddenval);
-                }
-            }
-
-            // many many values
-            if(labelvalues.length > 0) {
-                let inputfields = $("input[name=\'AjaxShadow' . $this->ID() . '[]\']");
-                hiddeninputs.html("");
-                for (let i = 0; i < inputfields.length; i++) {
-                    try {
-                        let inputObj = JSON.parse(inputfields.eq(i).val());
-                        if (!inputObj.label) {
-                            throw new Error("Label not found in input object");
-                        }
-                    } catch (e) {
-                        // set the input to be valid json
-                        let jsone = JSON.stringify({label: labelvalues[i], value: inputfields.eq(i).val()});
-                        let hiddenval = $("<input/>");
-                        hiddenval.attr("name", "' . $this->ID() . '\[\]");
-                        hiddenval.attr("type", "hidden");
-                        hiddenval.val(jsone);
-                        hiddeninputs.append(hiddenval);
-                    }
-                }
-            }
-        }).trigger("change");
-    });
-})(jQuery);
-        ');
+        //  $this->setIsLazyLoaded(true);
+        $this->setTemplate('AutocompleteSuggestField');
     }
-
 
     /**
      * if it's a relationship - we get the value from the object. 
@@ -157,23 +92,39 @@ class AutocompleteSuggestField extends SearchableDropdownField
     }
 
     /**
+     * Returns the attributes for the field, including the name and data-schema.
+     * If the field is multiple, the name will be suffixed with '[]'.
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        $name = $this->getName();
+        if ($this->isMultiple) {
+            $name .= '[]';
+        }
+        return array_merge(
+            parent::getAttributes(),
+            [
+                'name' => $name,
+                'data-schema' => json_encode($this->getSchemaData()),
+            ]
+        );
+    }
+
+    /**
      * @return array
      */
     public function getSchemaDataDefaults(): array
     {
         $data = parent::getSchemaDataDefaults();
-        $data = $this->updateDataForSchema($data);
+        $data = [];
         $name = $this->getName();
         if ($this->isMultiple && strpos($name, '[') === false) {
             $name .= '[]';
         }
-        $data['name'] = 'AjaxShadow' . $name;
+        $data['name'] =  $name;
         $data['disabled'] = $this->isDisabled() || $this->isReadonly();
-        if ($this->getIsLazyLoaded()) {
-            $data['optionUrl'] = Controller::join_links($this->Link(), 'search');
-        } else {
-            $data['options'] = array_values($this->getOptionsForSchema()->toNestedArray());
-        }
+        $data['optionUrl'] = Controller::join_links($this->Link(), 'search');
 
         if ($this->Value()) {
             $caches = AutocompleteSuggestCache::find($this->ID() . $this->getName(), $this->Value());

@@ -1,0 +1,10 @@
+---
+Name: ajaxconfig
+---
+
+
+SilverStripe\Admin\LeftAndMain:
+  extra_requirements_javascript:
+    - 'otago/autocomplete-suggest-field:client/js/autocomplete-cms.js'
+  extra_requirements_css:
+    - 'otago/autocomplete-suggest-field:client/css/autocomplete-cms.css'
