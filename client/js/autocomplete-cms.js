@@ -1,6 +1,3 @@
-
-
-
 /**
  * jQuery entwine implementation of a SearchableDropdownField with AJAX support.
  * This replaces the React version for SilverStripe CMS usage.
@@ -12,31 +9,37 @@
             const $field = $(this).find('.autocompletesuggest');
             const schema = $field.data('schema') || {};
             const optionUrl = schema.optionUrl || $field.data('option-url') || '';
-            const multi = !!$field.data('multi');
+            const multi = schema.multi;
             const placeholder = $field.attr('placeholder') || '';
-            const initalLabel = schema.value?.label ?? '';
+            const initialLabel = schema.value?.label ?? '';
 
-            $field.append(
-                $(`<div class="autocomplete-suggest-field__container">
-                        <div class="autocomplete-suggest-field__inner-container">
-                            <div class="autocomplete-suggest-field__control">
-                                <input type="text" class="autocomplete-suggest-field__input" aria-autocomplete="list"
-                                 aria-haspopup="listbox" aria-expanded="false" autocomplete="off" value="${initalLabel}" />
+            if (!$field.find('.autocomplete-suggest-field__input').length) {
+                $field.append(
+                    $(`<div class="autocomplete-suggest-field__container">
+                            <div class="autocomplete-suggest-field__inner-container">
+                                <div class="autocomplete-suggest-field__control">
+                                    <input type="text" class="autocomplete-suggest-field__input" aria-autocomplete="list"
+                                     aria-haspopup="listbox" aria-expanded="false" autocomplete="off" value="${initialLabel}" />
+                                </div>
                             </div>
-                        </div>
-                    </div>`));
+                        </div>`)
+                );
+            }
 
             const $input = $field.find('.autocomplete-suggest-field__input');
             const $control = $field.find('.autocomplete-suggest-field__control');
 
+            $input.off('focus blur');
             $input.on('focus', function () {
                 $control.addClass('autocomplete-suggest-field__control--focused');
                 $input.attr('aria-expanded', 'true');
             });
-
             $input.on('blur', function () {
                 $control.removeClass('autocomplete-suggest-field__control--focused');
                 $input.attr('aria-expanded', 'false');
+            });
+            $control.on('click', function () {
+                $input.focus();
             });
 
             // Create close button SVG
@@ -80,6 +83,9 @@
                         $closeBtn.hide();
                     }
                 }
+                if (multi) {
+                    $closeBtn.hide();
+                }
                 if (!$field.find('.ss-autocomplete-option').length) {
                     $dropdown.addClass('ss-autocomplete-dropdown--hidden');
                     $input.attr('aria-expanded', 'false');
@@ -96,10 +102,33 @@
                 $input.focus();
             });
 
-            if (!initalLabel) {
+            if (!initialLabel) {
                 nullifyInput();
             }
 
+            // populate default value if it exists
+            function populateDefaultValue() {
+                if (multi) {
+                    if (Array.isArray(schema.value)) {
+                        schema.value.forEach(function (item) {
+                            $('<input type="hidden" />')
+                                .attr('name', $field.attr('name') + '')
+                                .attr('data-value', item.value)
+                                .val(JSON.stringify({ label: item.label, value: item.value }))
+                                .appendTo($field.parent());
+                        });
+                        renderMultiOptions();
+                    }
+                } else {
+                    if (schema.value) {
+                        $('<input type="hidden" />')
+                            .attr('name', $field.attr('name') + '')
+                            .val(JSON.stringify({ label: schema.value.label, value: schema.value.value }))
+                            .appendTo($field.parent());
+                    }
+                }
+            }
+            populateDefaultValue();
 
             function fetchOptions(term) {
                 if (!term) {
@@ -139,7 +168,7 @@
                 });
             }
 
-            // Helper: render options
+            // Helper: render dropdown options
             function renderOptions(options) {
                 $dropdown.removeClass('ss-autocomplete-dropdown--hidden');
                 $dropdown.empty();
@@ -160,6 +189,12 @@
                         .text(opt.label)
                         .attr('data-value', opt.value)
                         .attr('id', 'ss-autocomplete-option-' + idx);
+
+
+                    if (keyExists(opt.value)) {
+                        $opt.addClass('ss-autocomplete-option--exists');
+                    }
+
                     $dropdown.append($opt);
                 });
                 highlightOption(0); // Always highlight first option by default
@@ -170,6 +205,55 @@
                 $dropdown.addClass('ss-autocomplete-dropdown--hidden');
                 $input.attr('aria-expanded', 'false');
                 $input.attr('aria-activedescendant', '');
+            }
+
+            // Helper: does one of these keys allready exist as a hidden value
+            function keyExists(val) {
+                if (multi) {
+                    $items = $field.siblings('input[type=hidden][name="' + $field.attr('name') + '"]');
+                    for (let i = 0; i < $items.length; i++) {
+                        let jsondata = $items.eq(i).val();
+                        let label = JSON.parse(jsondata);
+                        if (label.value === val) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // render the multi value selector options
+            function renderMultiOptions() {
+                if (!multi) {
+                    return;
+                }
+
+                // clear search
+                $input.val('');
+                $control.find('.autocomplete-suggest-field__multi-pill').remove();
+                let $hiddenfields = $field.siblings('input[type=hidden][name="' + $field.attr('name') + '"]');
+                for (let i = 0; i < $hiddenfields.length; i++) {
+                    let jsondata = $hiddenfields.eq(i).val();
+                    let label = JSON.parse(jsondata);
+                    let $multiPillButton = $(`
+                        <div class="autocomplete-suggest-field__multi-pill">
+                            <span class="autocomplete-suggest-field__multi-pill-label">${label.label}</span>
+                        </div>`);
+                    let $multiCcloseBtn = $(`
+                        <button type="button" class="autocomplete-suggest-field__clear-btn-pill" aria-label="Clear">
+                            <svg height="20" width="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false" class="react-select-8mmkcg">
+                                <path d="M14.348 14.849c-0.469 0.469-1.229 0.469-1.697 0l-2.651-3.030-2.651 3.029c-0.469 0.469-1.229 0.469-1.697 0-0.469-0.469-0.469-1.229 0-1.697l2.758-3.15-2.759-3.152c-0.469-0.469-0.469-1.228 0-1.697s1.228-0.469 1.697 0l2.652 3.031 2.651-3.031c0.469-0.469 1.228-0.469 1.697 0s0.469 1.229 0 1.697l-2.758 3.152 2.758 3.15c0.469 0.469 0.469 1.229 0 1.698z"></path>
+                            </svg>
+                        </button>  `);
+
+                    $multiCcloseBtn.on('click', function (e) {
+                        e.preventDefault();
+                        $multiPillButton.remove();
+                        $field.siblings('input[type=hidden][name="' + $field.attr('name') + '"][data-value="' + label.value + '"]').remove();
+                    });
+                    $multiPillButton.append($multiCcloseBtn);
+                    $control.prepend($multiPillButton);
+                }
             }
 
             // Helper: highlight option by index
@@ -217,10 +301,40 @@
                     renderOptions(options);
                 });
                 toggleInputState();
+                resizeInputField();
             });
+
+
+            // make sure the input field doesn't go too small, and we have things inline
+            function resizeInputField() {
+                // Create a hidden span to measure text width
+                let $span = $field.find('.autocomplete-suggest-field__sizer');
+                if (!$span.length) {
+                    $span = $('<span class="autocomplete-suggest-field__sizer" style="position:absolute;visibility:hidden;height:0;white-space:pre;"></span>');
+                    $field.append($span);
+                }
+                // Copy font styles for accurate measurement
+                $span.css({
+                    'font': $input.css('font'),
+                    'font-size': $input.css('font-size'),
+                    'font-family': $input.css('font-family'),
+                    'font-weight': $input.css('font-weight'),
+                    'letter-spacing': $input.css('letter-spacing'),
+                    'padding': $input.css('padding'),
+                    'border': $input.css('border'),
+                });
+                // Set span text to input value or placeholder
+                $span.text($input.val() || $input.attr('placeholder') || '');
+                // Add a little extra space for caret
+                $input.width($span.width() + 20);
+            }
+
 
             // Handle input for clearing
             function nullifyInput() {
+                if (multi) {
+                    return;
+                }
                 let $hidden = $field.siblings('input[type=hidden][name="' + $field.attr('name') + '"]');
 
                 if (!$hidden.length) {
@@ -234,11 +348,9 @@
 
             // Helper: check if input has no value
             function hasNoInputValue() {
-                console.log('$input.val()', $input.val())
                 if (!$input.val()) {
                     return true;
                 }
-                console.log('$input.val()', JSON.stringify($input.val()));
 
                 if (JSON.stringify($input.val()) === JSON.stringify('')) {
                     return true;
@@ -254,15 +366,21 @@
                 e.preventDefault();
                 const value = $(this).data('value');
                 const label = $(this).text();
+
+                // If the option already exists, do not add it again
+                if ($(this).hasClass('ss-autocomplete-option--exists')) {
+                    closeDropdown();
+                    return;
+                }
                 $input.val(label);
+                resizeInputField();
+
                 if (multi) {
-                    let $hidden = $field.siblings('input[type=hidden][name="' + $field.attr('name') + '[]"]');
-                    if (!$hidden.length) {
-                        $hidden = $('<input type="hidden" />')
-                            .attr('name', $field.attr('name') + '[]')
-                            .appendTo($field.parent());
-                    }
+                    $hidden = $('<input type="hidden" />')
+                        .attr('name', $field.attr('name') + '')
+                        .appendTo($field.parent());
                     $hidden.val(JSON.stringify({ label: label, value: value }));
+                    renderMultiOptions();
                 } else {
                     $field.val(label);
                     let $hidden = $field.siblings('input[type=hidden][name="' + $field.attr('name') + '"]');
@@ -324,8 +442,9 @@
             $field.attr('placeholder', placeholder);
             $input.attr('placeholder', placeholder);
             $input.attr('role', 'combobox');
-            $input.attr('aria-controls', $dropdown.attr('id') || 'autocomplete-dropdown-' + Math.random().toString(36).substr(2, 9));
-            $dropdown.attr('id', $input.attr('aria-controls'));
+            const dropdownId = 'autocomplete-dropdown-' + Math.random().toString(36).slice(2, 11);
+            $dropdown.attr('id', dropdownId);
+            $input.attr('aria-controls', dropdownId);
         }
     });
 })(jQuery);

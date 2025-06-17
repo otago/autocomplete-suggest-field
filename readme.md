@@ -12,12 +12,14 @@ Enhance your forms with a **dynamic auto-complete dropdown** that allows for cus
 
 ## Examples
 
+Data must be returned in a 'value' 'label' key pair.
+
 ### Using an External API (e.g., Microsoft Graph)
 If you're fetching data from an external API, like Microsoft Graph, you can structure your search method as follows:
 
 ```php
 // 'Team' is a Varchar field in my DataObject.
-$suggestedTeam = GUIDDropdownField::create('Team', 'Team', function ($search) {
+$suggestedTeam = AutocompleteSuggestField::create('Team', 'Team', function ($search) {
     $result = AzureIntegration::request(
         "https://graph.microsoft.com/beta/groups?\$filter=startswith(displayName%2C'$search')&select=description,displayName,id&\$top=10",
         'GET'
@@ -42,7 +44,7 @@ Need a simple dropdown with predefined options? This example saves against a `Me
 
 ```php
 // 'Member' is a has_one relationship
-$favoriteMember = GUIDDropdownField::create('MemberID', 'Favorite Member', function ($search) {
+$favoriteMember = AutocompleteSuggestField::create('MemberID', 'Favorite Member', function ($search) {
     return [
         [ 'value' => 1, 'label' => 'Torleif'],
         [ 'value' => 80, 'label' => 'Alastair'],
@@ -54,7 +56,7 @@ $favoriteMember = GUIDDropdownField::create('MemberID', 'Favorite Member', funct
 Want multi-selection? This works with `many_many` relationships using `setIsMultiple(true)`, allowing multiple selections.
 
 ```php
-$myTeam = GUIDDropdownField::create('Members', 'Members', function ($search) {
+$myTeam = AutocompleteSuggestField::create('Members', 'Members', function ($search) {
     return [
         [ 'value' => 1, 'label' => 'Bobby Lee'],
         [ 'value' => 80, 'label' => 'Van Halen'],

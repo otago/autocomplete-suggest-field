@@ -11,16 +11,6 @@
 
 
 .autocomplete-suggest-field__control {
-    -moz-box-align: center;
-    align-items: center;
-    cursor: default;
-    display: flex;
-    flex-wrap: wrap;
-    -moz-box-pack: justify;
-    justify-content: space-between;
-    min-height: 38px;
-    outline: 0px !important;
-    position: relative;
     transition: 100ms;
     background-color: rgb(255, 255, 255);
     border-color: rgb(204, 204, 204);
@@ -28,17 +18,54 @@
     border-style: solid;
     border-width: 1px;
     box-sizing: border-box;
+    padding: 0 6px;
+    cursor: text;
 }
 
-.ss-autocomplete-option--highlighted{
+.ss-autocomplete-option--highlighted {
     background-color: #e6f7ff;
     color: #1890ff;
 }
 
+.autocomplete-suggest-field__multi-pill {
+    display: inline-block;
+    padding: 0 30px 0 8px;
+    line-height: 24px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    margin: 4px;
+    position: relative;
+}
+
+.autocomplete-suggest-field__multi-pill-label {
+    display: inline-block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 2px;
+}
+
+.autocomplete-suggest-field__clear-btn-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    top: 2px;
+    position: absolute;
+}
+
 .autocomplete-suggest-field__input {
     opacity: 1;
-    width: 100%;
-    grid-area: 1 / 2;
+    /*width: 100%;
+    grid-area: 1 / 2;*/
     font: inherit;
     min-width: 2px;
     border: 0px;
@@ -73,6 +100,12 @@
     background-color: #f0f0f0;
 }
 
+.ss-autocomplete-option--exists {
+    background-color: #eeeeee;
+    color: #c5c5c5;
+    cursor: not-allowed;
+}
+
 .autocomplete-suggest-field__control--focused {
     border-color: #66afe9;
 }
@@ -99,7 +132,9 @@
     border: none;
     background-color: transparent;
     opacity: .3;
+    top: 6px;
 }
+
 .autocomplete-suggest-field__clear-btn:hover {
     opacity: 1;
 }

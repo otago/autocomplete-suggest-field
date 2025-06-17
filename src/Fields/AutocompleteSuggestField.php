@@ -43,6 +43,8 @@ class AutocompleteSuggestField extends FormField
 
     protected $searchCallback = null;
 
+    protected bool $isMultiple = false;
+
     // This needs to be defined on the class, not the trait, otherwise there is a PHP error
     protected $schemaComponent = 'SearchableDropdownField';
     /**
@@ -50,26 +52,18 @@ class AutocompleteSuggestField extends FormField
      * @param string|null   $title
      * @param DataList|null $source
      * @param mixed         $value
-     * @param string        $labelField
      * @return void
      */
     public function __construct(
         string $name,
         ?string $title,
         Closure $searchCallback,
-        mixed $value = null,
-        string $labelField = 'Title'
+        mixed $value = null
     ) {
         parent::__construct($name, $title, null, $value);
         $this->setValue($value);
-        $this->sneedValue = $value;
-        //  $this->setLabelField($labelField);
         $this->addExtraClass('ss-autocomplete-dropdown-field');
-
         $this->setCallBack($searchCallback);
-
-        // we use this to trigger the lazy loading via ajax
-        //  $this->setIsLazyLoaded(true);
         $this->setTemplate('AutocompleteSuggestField');
     }
 
@@ -121,6 +115,9 @@ class AutocompleteSuggestField extends FormField
         $name = $this->getName();
         if ($this->isMultiple && strpos($name, '[') === false) {
             $name .= '[]';
+            $data['multi'] =  true;
+        } else {
+            $data['multi'] =  false;
         }
         $data['name'] =  $name;
         $data['disabled'] = $this->isDisabled() || $this->isReadonly();
@@ -235,12 +232,14 @@ class AutocompleteSuggestField extends FormField
             )
         ) {
             $ids = [];
-            foreach ($this->value() as $jsondata) {
-                $decodedData = json_decode($jsondata, true);
-                if (!isset($decodedData['value'])) {
-                    throw new Exception("Value not found in input data");
+            if (is_iterable($this->value())) {
+                foreach ($this->value() as $jsondata) {
+                    $decodedData = json_decode($jsondata, true);
+                    if (!isset($decodedData['value'])) {
+                        throw new Exception("Value not found in input data");
+                    }
+                    $ids[] = (int) $decodedData['value'];
                 }
-                $ids[] = (int) $decodedData['value'];
             }
             $relationList = $record->$name();
             $relationList->setByIDList($ids);
@@ -248,9 +247,13 @@ class AutocompleteSuggestField extends FormField
         }
 
         // decode and verify the json data
+        if (!is_string($this->Value())) {
+            throw new Exception("Value is not a string, cannot decode JSON");
+        }
+
         $jsonvalue = json_decode($this->Value(), true);
 
-        if (!is_string($this->Value()) || !array_key_exists('value', $jsonvalue) || !array_key_exists('label', $jsonvalue)) {
+        if (!is_array($jsonvalue) || !array_key_exists('value', $jsonvalue) || !array_key_exists('label', $jsonvalue)) {
             throw new Exception("JSON data invalid");
         }
         $this->setValue($jsonvalue['value']);
