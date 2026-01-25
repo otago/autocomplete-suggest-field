@@ -16,7 +16,7 @@ use SilverStripe\Dev\Deprecation;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FormField;
 use SilverStripe\Forms\SearchableDropdownField;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObjectInterface;
 use SilverStripe\Security\SecurityToken;
@@ -31,7 +31,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\RelationList;
 use SilverStripe\ORM\UnsavedRelationList;
 use SilverStripe\Security\Member;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\View\Requirements;
 use SilverStripe\View\SSViewer;
 
@@ -123,11 +123,11 @@ class AutocompleteSuggestField extends FormField
         $data['disabled'] = $this->isDisabled() || $this->isReadonly();
         $data['optionUrl'] = Controller::join_links($this->Link(), 'search');
 
-        if ($this->Value()) {
-            $caches = AutocompleteSuggestCache::find($this->ID() . $this->getName(), $this->Value());
-            if (is_iterable($this->Value())) {
+        if ($this->getValue()) {
+            $caches = AutocompleteSuggestCache::find($this->ID() . $this->getName(), $this->getValue());
+            if (is_iterable($this->getValue())) {
                 // bypass the cache if it's a many_many
-                foreach ($this->Value() as $value) {
+                foreach ($this->getValue() as $value) {
                     if (is_object($value)) {
                         $data['value'][] = [
                             "value" =>  $value->ID,
@@ -146,14 +146,14 @@ class AutocompleteSuggestField extends FormField
             } else {
                 if ($caches->first()) {
                     $data['value'] = [
-                        "value" =>  $this->Value(),
+                        "value" =>  $this->getValue(),
                         "label" => $caches->first()->AutoName,
                         "selected" => true
                     ];
                 } else {
                     $data['value'] = [
-                        "value" =>  $this->Value(),
-                        "label" => "Key: " . $this->value,
+                        "value" =>  $this->getValue(),
+                        "label" => "Key: " . $this->getValue(),
                         "selected" => true
                     ];
                 }
@@ -232,8 +232,8 @@ class AutocompleteSuggestField extends FormField
             )
         ) {
             $ids = [];
-            if (is_iterable($this->value())) {
-                foreach ($this->value() as $jsondata) {
+            if (is_iterable($this->getValue())) {
+                foreach ($this->getValue() as $jsondata) {
                     $decodedData = json_decode($jsondata, true);
                     if (!isset($decodedData['value'])) {
                         throw new Exception("Value not found in input data");
@@ -247,11 +247,11 @@ class AutocompleteSuggestField extends FormField
         }
 
         // decode and verify the json data
-        if (!is_string($this->Value())) {
+        if (!is_string($this->getValue())) {
             throw new Exception("Value is not a string, cannot decode JSON");
         }
 
-        $jsonvalue = json_decode($this->Value(), true);
+        $jsonvalue = json_decode($this->getValue(), true);
 
         if (!is_array($jsonvalue) || !array_key_exists('value', $jsonvalue) || !array_key_exists('label', $jsonvalue)) {
             throw new Exception("JSON data invalid");
@@ -259,8 +259,8 @@ class AutocompleteSuggestField extends FormField
         $this->setValue($jsonvalue['value']);
 
         // clear the label cache, rewrite it
-        AutocompleteSuggestCache::clearLabels($this->ID() . $this->getName(), $this->Value());
-        AutocompleteSuggestCache::writecache($this->ID() . $this->getName(), $this->Value(), $jsonvalue['label']);
+        AutocompleteSuggestCache::clearLabels($this->ID() . $this->getName(), $this->getValue());
+        AutocompleteSuggestCache::writecache($this->ID() . $this->getName(), $this->getValue(), $jsonvalue['label']);
 
         // has_one field
         if (substr($name, -2) === 'ID') {
@@ -294,7 +294,7 @@ class AutocompleteSuggestField extends FormField
      */
     public function DataInputs()
     {
-        $inputfields = $this->Value();
+        $inputfields = $this->getValue();
         $arrayList = new ArrayList();
         if (is_iterable($inputfields)) {
             foreach ($inputfields as $inputfield) {
@@ -304,16 +304,16 @@ class AutocompleteSuggestField extends FormField
                 ]));
             }
         } else {
-            $cache = AutocompleteSuggestCache::find($this->ID() . $this->getName(), $this->Value());
+            $cache = AutocompleteSuggestCache::find($this->ID() . $this->getName(), $this->getValue());
             if ($cache->first()) {
                 $arrayList->push(new ArrayData([
                     'Name' => $this->Name,
-                    'Value' =>   json_encode(['label' => $cache->first()?->AutoName, 'value' => $this->Value()]),
+                    'Value' =>   json_encode(['label' => $cache->first()?->AutoName, 'value' => $this->getValue()]),
                 ]));
             } else {
                 $arrayList->push(new ArrayData([
                     'Name' => $this->Name,
-                    'Value' =>   json_encode(['label' => "Key: " . $this->Value(), 'value' =>  $this->value()]),
+                    'Value' =>   json_encode(['label' => "Key: " . $this->getValue(), 'value' =>  $this->getValue()]),
                 ]));
             }
         }
