@@ -8,6 +8,9 @@
     border-color: #ced5e1;
     box-shadow: none;
 }
+.ss-autocomplete-dropdown-field .form__field-holder {
+    position: relative;
+}
 
 
 .autocomplete-suggest-field__control {
