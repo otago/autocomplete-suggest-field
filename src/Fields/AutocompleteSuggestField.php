@@ -110,7 +110,6 @@ class AutocompleteSuggestField extends FormField
      */
     public function getSchemaDataDefaults(): array
     {
-        $data = parent::getSchemaDataDefaults();
         $data = [];
         $name = $this->getName();
         if ($this->isMultiple && strpos($name, '[') === false) {
